@@ -1,5 +1,5 @@
 import { getMe } from "./auth.js";
-import { isLogin, getUrlParam, getToken } from "./utils.js";
+import { showSwal,isLogin, getUrlParam, getToken } from "./utils.js";
 
 const showUserNameInNavbar = () => {
   const navbarProfileBox = document.querySelector(".main-header__profile");
@@ -665,17 +665,116 @@ const getSessionDetails = async () => {
   
   const courseShortName = getUrlParam("name");
   const sessionID = getUrlParam("id");
+  const videoElem = document.querySelector(".episode-content__video")
+  const videolistElem = document.querySelector(".sidebar-topics__list")
+  console.log(videolistElem);
+  
 
   const res = await fetch(`http://localhost:4000/v1/courses/${courseShortName}/${sessionID}`, {
     headers: {
       Authorization: `Bearer ${getToken()}`,
     },
   })
-  const session = await res.json()
+  const sessiondata = await res.json()
+
+
+  videoElem.setAttribute("src" , `http://localhost:4000/courses/covers/${sessiondata.session.video}`)
+
+sessiondata.sessions.forEach(session => {
+
+  videolistElem.insertAdjacentHTML("beforeend" , `
+    <li class="sidebar-topics__list-item">
+                  <div class="sidebar-topics__list-right">
+                    <svg class="svg-inline--fa fa-circle-play sidebar-topics__list-item-icon" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="circle-play" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M512 256C512 397.4 397.4 512 256 512C114.6 512 0 397.4 0 256C0 114.6 114.6 0 256 0C397.4 0 512 114.6 512 256zM176 168V344C176 352.7 180.7 360.7 188.3 364.9C195.8 369.2 205.1 369 212.5 364.5L356.5 276.5C363.6 272.1 368 264.4 368 256C368 247.6 363.6 239.9 356.5 235.5L212.5 147.5C205.1 142.1 195.8 142.8 188.3 147.1C180.7 151.3 176 159.3 176 168V168z"></path></svg><!-- <i class="sidebar-topics__list-item-icon fa fa-play-circle"></i> Font Awesome fontawesome.com -->
+                    ${session.free ? `
+  <a class="sidebar-topics__list-item-link" href="#">${session.title}</a>
+                      `:`
+  <span class="sidebar-topics__list-item-link" href="#">${session.title}</span>
+
+                      
+                      `}
+                  
+                  </div>
+                  <div class="sidebar-topics__list-left">
+                    <span class="sidebar-topics__list-item-time">${session.time}</span>
+                    ${!session.free ? `
+                      <i class="fa fa-lock"></i>
+                      `:`
+                      
+                      `}
+                  </div>
+                </li>
+    
+    `)
+  
+  
+})
+
+  return sessiondata
+};
+
+const submitContactUsMsg = async () => {
+
+  const nameInput = document.querySelector("#fullname")
+  const emailInput = document.querySelector("#email")
+  const phoneInput = document.querySelector("#phone")
+  const massageInput = document.querySelector("#msg")
+
+  let newMassageObg = {
+    "name": nameInput.value.trim(),
+    "email": emailInput.value.trim(),
+    "phone": phoneInput.value.trim(),
+    "body" : massageInput.value.trim()
+  }
+
+  let res = await fetch("http://localhost:4000/v1/contact", {
+    method : "POST",
+    headers : {
+      "Content-Type" : "application/json"
+    },
+    body : JSON.stringify(newMassageObg)
+  })
+
+  console.log(res);
+
+  let responseData = await res.json()
+
+
+
+   clearInputs()
+   
+
+  function clearInputs () {
+    nameInput.value = ""
+emailInput.value = ""
+phoneInput.value = ""
+massageInput.value = ""
+  }
+
+  console.log(responseData);
+  
+  if (res.status === 201) {
+    showSwal(
+      "پیام با موفقیت ارسال شد",
+      "success",
+      "ورود به پنل",
+      (result) => {
+        location.href = "index.html";
+      }
+    );
+  } else if (res.status === 409) {
+    showSwal(
+      "خطایی در ارسال پیام وجود دارد",
+      "error",
+      "تصحیح اطلاعات",
+      () => {}
+    );
+  }
   
 
-  return session
-};
+  
+  
+}
 
 export {
   showUserNameInNavbar,
@@ -690,5 +789,6 @@ export {
   coursesSorting,
   getCourseDetails,
   getAndShowRelatedCourses,
-  getSessionDetails
+  getSessionDetails,
+  submitContactUsMsg,
 };
