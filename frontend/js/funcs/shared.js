@@ -1,5 +1,5 @@
 import { getMe } from "./auth.js";
-import { showSwal,isLogin, getUrlParam, getToken } from "./utils.js";
+import { isLogin, getUrlParam, getToken, showSwal } from "./utils.js";
 
 const showUserNameInNavbar = () => {
   const navbarProfileBox = document.querySelector(".main-header__profile");
@@ -324,12 +324,9 @@ const getAndShowNavbarMenus = async () => {
 
 const getAndShowCategoryCourses = async () => {
   const categoryName = getUrlParam("cat");
-  const editedCategoryName = categoryName.split("").splice(15).join("")
-  console.log(editedCategoryName);
-  
 
   const res = await fetch(
-    `http://localhost:4000/v1/courses/category/${editedCategoryName}`
+    `http://localhost:4000/v1/courses/category/${categoryName}`
   );
   const courses = await res.json();
 
@@ -359,13 +356,22 @@ const insertCourseBoxHtmlTemplate = (courses, showType, parentElement) => {
                       course.creator
                     }</a>
                   </div>
-                 <div class="course-box__rating">
-            <img src="images/svgs/star.svg" alt="rating" class="course-box__star">
-            <img src="images/svgs/star_fill.svg" alt="rating" class="course-box__star">
-            <img src="images/svgs/star_fill.svg" alt="rating" class="course-box__star">
-            <img src="images/svgs/star_fill.svg" alt="rating" class="course-box__star">
-            <img src="images/svgs/star_fill.svg" alt="rating" class="course-box__star">
-          </div>
+                  <div class="course-box__rating">
+                    ${Array(5 - course.courseAverageScore)
+                      .fill(0)
+                      .map(
+                        (score) =>
+                          '<img src="images/svgs/star.svg" alt="rating" class="course-box__star">'
+                      )
+                      .join("")}
+                    ${Array(course.courseAverageScore)
+                      .fill(0)
+                      .map(
+                        (score) =>
+                          '<img src="images/svgs/star_fill.svg" alt="rating" class="course-box__star">'
+                      )
+                      .join("")}
+                  </div>
                 </div>
         
                 <div class="course-box__status">
@@ -662,118 +668,122 @@ const getAndShowRelatedCourses = async () => {
 };
 
 const getSessionDetails = async () => {
-  
   const courseShortName = getUrlParam("name");
   const sessionID = getUrlParam("id");
-  const videoElem = document.querySelector(".episode-content__video")
-  const videolistElem = document.querySelector(".sidebar-topics__list")
-  console.log(videolistElem);
-  
 
-  const res = await fetch(`http://localhost:4000/v1/courses/${courseShortName}/${sessionID}`, {
-    headers: {
-      Authorization: `Bearer ${getToken()}`,
-    },
-  })
-  const sessiondata = await res.json()
+  const sessionVideoElem = document.querySelector(".episode-content__video");
+  const courseSessionsListElem = document.querySelector(
+    ".sidebar-topics__list"
+  );
 
+  const res = await fetch(
+    `http://localhost:4000/v1/courses/${courseShortName}/${sessionID}`,
+    {
+      headers: {
+        Authorization: `Bearer ${getToken()}`,
+      },
+    }
+  );
+  const responseData = await res.json();
 
-  videoElem.setAttribute("src" , `http://localhost:4000/courses/covers/${sessiondata.session.video}`)
+  sessionVideoElem.setAttribute(
+    "src",
+    `http://localhost:4000/courses/covers/${responseData.session.video}`
+  );
+  responseData.sessions.forEach((session) => {
+    courseSessionsListElem.insertAdjacentHTML(
+      "beforeend",
+      `
+        <li class="sidebar-topics__list-item">
+          <div class="sidebar-topics__list-right">
+            <svg class="svg-inline--fa fa-circle-play sidebar-topics__list-item-icon" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="circle-play" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M512 256C512 397.4 397.4 512 256 512C114.6 512 0 397.4 0 256C0 114.6 114.6 0 256 0C397.4 0 512 114.6 512 256zM176 168V344C176 352.7 180.7 360.7 188.3 364.9C195.8 369.2 205.1 369 212.5 364.5L356.5 276.5C363.6 272.1 368 264.4 368 256C368 247.6 363.6 239.9 356.5 235.5L212.5 147.5C205.1 142.1 195.8 142.8 188.3 147.1C180.7 151.3 176 159.3 176 168V168z"></path></svg><!-- <i class="sidebar-topics__list-item-icon fa fa-play-circle"></i> Font Awesome fontawesome.com -->
+            ${
+              session.free
+                ? `
+                <a class="sidebar-topics__list-item-link" href="episode.html?name${courseShortName}&id=${session._id}">${session.title}</a>
+              `
+                : `
+                <span class="sidebar-topics__list-item-link">${session.title}</span>
+              `
+            }
+          </div>
+          <div class="sidebar-topics__list-left">
+            <span class="sidebar-topics__list-item-time">${session.time}</span>
+          </div>
+        </li>
+    `
+    );
+  });
 
-sessiondata.sessions.forEach(session => {
-
-  videolistElem.insertAdjacentHTML("beforeend" , `
-    <li class="sidebar-topics__list-item">
-                  <div class="sidebar-topics__list-right">
-                    <svg class="svg-inline--fa fa-circle-play sidebar-topics__list-item-icon" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="circle-play" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M512 256C512 397.4 397.4 512 256 512C114.6 512 0 397.4 0 256C0 114.6 114.6 0 256 0C397.4 0 512 114.6 512 256zM176 168V344C176 352.7 180.7 360.7 188.3 364.9C195.8 369.2 205.1 369 212.5 364.5L356.5 276.5C363.6 272.1 368 264.4 368 256C368 247.6 363.6 239.9 356.5 235.5L212.5 147.5C205.1 142.1 195.8 142.8 188.3 147.1C180.7 151.3 176 159.3 176 168V168z"></path></svg><!-- <i class="sidebar-topics__list-item-icon fa fa-play-circle"></i> Font Awesome fontawesome.com -->
-                    ${session.free ? `
-  <a class="sidebar-topics__list-item-link" href="#">${session.title}</a>
-                      `:`
-  <span class="sidebar-topics__list-item-link" href="#">${session.title}</span>
-
-                      
-                      `}
-                  
-                  </div>
-                  <div class="sidebar-topics__list-left">
-                    <span class="sidebar-topics__list-item-time">${session.time}</span>
-                    ${!session.free ? `
-                      <i class="fa fa-lock"></i>
-                      `:`
-                      
-                      `}
-                  </div>
-                </li>
-    
-    `)
-  
-  
-})
-
-  return sessiondata
+  return responseData;
 };
 
 const submitContactUsMsg = async () => {
+  const nameInputElem = document.querySelector("#name");
+  const emailInputElem = document.querySelector("#email");
+  const phoneInputElem = document.querySelector("#phone");
+  const bodyInputElem = document.querySelector("#body");
 
-  const nameInput = document.querySelector("#fullname")
-  const emailInput = document.querySelector("#email")
-  const phoneInput = document.querySelector("#phone")
-  const massageInput = document.querySelector("#msg")
+  const newContactUsInfos = {
+    name: nameInputElem.value.trim(),
+    email: emailInputElem.value.trim(),
+    phone: phoneInputElem.value.trim(),
+    body: bodyInputElem.value.trim(),
+  };
 
-  let newMassageObg = {
-    "name": nameInput.value.trim(),
-    "email": emailInput.value.trim(),
-    "phone": phoneInput.value.trim(),
-    "body" : massageInput.value.trim()
-  }
-
-  let res = await fetch("http://localhost:4000/v1/contact", {
-    method : "POST",
-    headers : {
-      "Content-Type" : "application/json"
+  const res = await fetch(`http://localhost:4000/v1/contact`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
     },
-    body : JSON.stringify(newMassageObg)
-  })
+    body: JSON.stringify(newContactUsInfos),
+  });
 
-  console.log(res);
-
-  let responseData = await res.json()
-
-
-
-   clearInputs()
-   
-
-  function clearInputs () {
-    nameInput.value = ""
-emailInput.value = ""
-phoneInput.value = ""
-massageInput.value = ""
-  }
-
-  console.log(responseData);
-  
   if (res.status === 201) {
     showSwal(
-      "پیام با موفقیت ارسال شد",
+      "پیغام شما با موفقیت ارسال شد",
       "success",
       "ورود به پنل",
       (result) => {
         location.href = "index.html";
       }
     );
-  } else if (res.status === 409) {
+  } else {
     showSwal(
-      "خطایی در ارسال پیام وجود دارد",
+      "مشکلی در ارسال پیغام وجود دارد \n لطفا بعدا تست کنید",
       "error",
-      "تصحیح اطلاعات",
+      "ای بابا",
       () => {}
     );
   }
-  
+};
 
-  
-  
+const createNewNewsLetter = async () => {
+  const newsLetterInput = document.querySelector('#news-letter-input')
+
+  console.log(newsLetterInput);
+  const newNewsLetterEmailObj = {
+    email: newsLetterInput.value.trim()
+  }
+
+  const res = await fetch(`http://localhost:4000/v1/newsletters`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(newNewsLetterEmailObj)
+  })
+
+  console.log(res);
+
+  if (res.ok) {
+    showSwal(
+      "با موفقیت در خبرنامه سبزلرن عضو شدید",
+      "success",
+      "متوجه شدم",
+      () => {}
+    );
+  }
 }
 
 export {
@@ -791,4 +801,5 @@ export {
   getAndShowRelatedCourses,
   getSessionDetails,
   submitContactUsMsg,
+  createNewNewsLetter
 };
