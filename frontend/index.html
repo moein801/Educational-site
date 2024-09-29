@@ -112,8 +112,9 @@
             type="text"
             class="landing__searchbar-input"
             placeholder="چه چیزی دوست داری یاد بگیری ..."
+            id="search-input"
           />
-          <button class="landing__searchbar-btn" type="submit">
+          <button class="landing__searchbar-btn" type="submit" id="search-btn">
             <i class="fas fa-search landing__searchbar-icon"></i>
           </button>
         </div>
@@ -255,7 +256,7 @@
             >
           </div>
           <div class="courses-header__left">
-            <a href="#" class="courses-header__link">
+            <a href="courses.html?page=1" class="courses-header__link" id="all-courses-btn">
               تمامی دوره ها
               <i class="fas fa-arrow-left courses-header__icon"></i>
             </a>
@@ -408,6 +409,7 @@
         </div>
 
         <div class="articles__content">
+
           <div class="row" id="articles-wrapper">
             <!-- Data Loaded From JS -->
           </div>

@@ -4,7 +4,9 @@ import {
   coursesSorting,
 } from "./funcs/shared.js";
 
-import { searchInArray } from "./funcs/utils.js";
+import { searchInArray,paginate, getUrlParam,addParamToURL } from "./funcs/utils.js";
+
+window.addParamToURL = addParamToURL
 
 window.addEventListener("load", () => {
   getAndShowCategoryCourses().then((responseCourses) => {
@@ -125,5 +127,17 @@ window.addEventListener("load", () => {
         );
       }
     });
+
+    // pagination Courses
+    const paginationListElem = document.querySelector(".courses__pagination-list")
+    const currentPage = getUrlParam("page")
+    const shownCourses = paginate(courses,3,paginationListElem,currentPage)
+    insertCourseBoxHtmlTemplate(
+      shownCourses,
+      coursesShowType,
+      categoryCoursesWrapper
+    );
+    
   });
 });
+  

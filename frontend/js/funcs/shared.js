@@ -1,5 +1,7 @@
 import { getMe } from "./auth.js";
-import { isLogin, getUrlParam, getToken, showSwal } from "./utils.js";
+import { isLogin, getUrlParam, getToken, showSwal,paginate } from "./utils.js";
+
+
 
 const showUserNameInNavbar = () => {
   const navbarProfileBox = document.querySelector(".main-header__profile");
@@ -293,7 +295,7 @@ const getAndShowNavbarMenus = async () => {
       "beforeend",
       `
     <li class="main-header__item">
-    <a href=category.html?cat=${menu.href} class="main-header__link">${
+    <a href=category.html?cat=${menu.href.slice(15)}&page=1 class="main-header__link">${
         menu.title
       }
       ${
@@ -324,7 +326,7 @@ const getAndShowNavbarMenus = async () => {
 
 const getAndShowCategoryCourses = async () => {
   const categoryName = getUrlParam("cat");
-
+  
   const res = await fetch(
     `http://localhost:4000/v1/courses/category/${categoryName}`
   );
@@ -333,11 +335,12 @@ const getAndShowCategoryCourses = async () => {
   return courses;
 };
 
-const insertCourseBoxHtmlTemplate = (courses, showType, parentElement) => {
+const insertCourseBoxHtmlTemplate = (courses, showType = "row", parentElement) => {
   parentElement.innerHTML = "";
 
   if (showType === "row") {
     courses.forEach((course) => {
+      
       parentElement.insertAdjacentHTML(
         "beforeend",
         `
@@ -357,20 +360,11 @@ const insertCourseBoxHtmlTemplate = (courses, showType, parentElement) => {
                     }</a>
                   </div>
                   <div class="course-box__rating">
-                    ${Array(5 - course.courseAverageScore)
-                      .fill(0)
-                      .map(
-                        (score) =>
-                          '<img src="images/svgs/star.svg" alt="rating" class="course-box__star">'
-                      )
-                      .join("")}
-                    ${Array(course.courseAverageScore)
-                      .fill(0)
-                      .map(
-                        (score) =>
-                          '<img src="images/svgs/star_fill.svg" alt="rating" class="course-box__star">'
-                      )
-                      .join("")}
+              <img src="images/svgs/star.svg" alt="rating" class="course-box__star">
+              <img src="images/svgs/star.svg" alt="rating" class="course-box__star">
+              <img src="images/svgs/star.svg" alt="rating" class="course-box__star">
+              <img src="images/svgs/star.svg" alt="rating" class="course-box__star">
+              <img src="images/svgs/star.svg" alt="rating" class="course-box__star">
                   </div>
                 </div>
         
@@ -567,6 +561,10 @@ const getCourseDetails = () => {
       // Show Course Sessions
       const sessionsWrapper = $.querySelector(".sessions-wrapper");
 
+      // Show Course Comments
+      const commentsContentWrapper =
+        document.querySelector(".comments__content");
+
       if (course.sessions.length) {
         course.sessions.forEach((session, index) => {
           sessionsWrapper.insertAdjacentHTML(
@@ -630,6 +628,84 @@ const getCourseDetails = () => {
           `
         );
       }
+
+      if(course.comments.length){
+        course.comments.forEach((comment) => {
+          commentsContentWrapper.insertAdjacentHTML(
+            "beforeend",
+            `
+            <div class="comments__item">
+                          <div class="comments__question">
+                              <div class="comments__question-header">
+                                  <div class="comments__question-header-right">
+                                      <span class="comments__question-name comment-name">${
+                                        comment.creator.name
+                                      }</span>
+                                      <span class="comments__question-status comment-status">(${
+                                        comment.creator.role === "USER"
+                                          ? "دانشجو"
+                                          : "مدرس"
+                                      })</span>
+                                      <span class="comments__question-date comment-date">${comment.createdAt.slice(
+                                        0,
+                                        10
+                                      )}</span>
+                                  </div>
+                                  <div class="comments__question-header-left">
+                                      <a class="comments__question-header-link comment-link" href="#">پاسخ</a>
+                                  </div>
+                              </div>
+                              <div class="comments__question-text">
+                                  <p class="comments__question-paragraph comment-paragraph">${
+                                    comment.body
+                                  }
+                                  </p>
+                              
+                             
+                              </div>
+                          </div>
+  
+                          ${
+                            comment.answer
+                              ? `
+                               <div class="comments__ansewr">
+                              <div class="comments__ansewr-header">
+                                  <div class="comments__ansewr-header-right">
+                                      <span class="comments__ansewr-name comment-name">${comment.answerContent.creator.name}</span>
+                                      <span class="comments__ansewr-staus comment-status">(${
+                                        comment.creator.role === "USER"
+                                          ? "دانشجو"
+                                          : "مدرس"
+                                      })</span>
+                                      <span class="comments__ansewr-date comment-date">${comment.answerContent.createdAt.slice(0,10)}</span>
+                                  </div>
+                                  <div class="comments__ansewr-header-left">
+                                      <a class="comments__ansewr-header-link comment-link" href="#">پاسخ</a>
+                                  </div>
+                              </div>
+                              <div class="comments__ansewr-text">
+                                  <p class="comments__ansewr-paragraph comment-paragraph">${comment.answerContent.body}</p>
+                              
+                              </div>
+                          </div>
+                            
+                            `
+                              : ""
+                          }
+                       
+                      </div>
+            
+            `
+          );
+        });
+
+      }else{
+        commentsContentWrapper.insertAdjacentHTML("beforeend", `
+          <div class='alert alert-danger'>هنوز هیچ کامنتی برای این دوره ثبت نشده</div>
+          `)
+      }
+      
+  
     });
 };
 
@@ -759,20 +835,20 @@ const submitContactUsMsg = async () => {
 };
 
 const createNewNewsLetter = async () => {
-  const newsLetterInput = document.querySelector('#news-letter-input')
+  const newsLetterInput = document.querySelector("#news-letter-input");
 
   console.log(newsLetterInput);
   const newNewsLetterEmailObj = {
-    email: newsLetterInput.value.trim()
-  }
+    email: newsLetterInput.value.trim(),
+  };
 
   const res = await fetch(`http://localhost:4000/v1/newsletters`, {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json'
+      "Content-Type": "application/json",
     },
-    body: JSON.stringify(newNewsLetterEmailObj)
-  })
+    body: JSON.stringify(newNewsLetterEmailObj),
+  });
 
   console.log(res);
 
@@ -784,6 +860,237 @@ const createNewNewsLetter = async () => {
       () => {}
     );
   }
+};
+
+const globalSearch = async () => {
+
+  const searchValue = getUrlParam("value")
+  const res = await fetch(`http://localhost:4000/v1/search/${searchValue}`)
+  const result = await res.json()
+
+  console.log(result);
+  
+  
+  const coursesContainer = document.querySelector("#courses-container")
+  const articlesWrapper = document.querySelector("#articles-wrapper")
+
+  if(result.allResultArticles.length){
+    result.allResultCourses.forEach(course => {
+      coursesContainer.insertAdjacentHTML("beforeend" , `
+         <div class="col-4">
+                  <div class="course-box">
+                    <a href="course.html?name=${course.shortName}">
+                      <img src=http://localhost:4000/courses/covers/${
+                        course.cover
+                      } alt="Course img" class="course-box__img" />
+                    </a>
+                    <div class="course-box__main">
+                      <a href="course.html?name=${
+                        course.shortName
+                      }" class="course-box__title">${course.name}</a>
+  
+                      <div class="course-box__rating-teacher">
+                        <div class="course-box__teacher">
+                          <i class="fas fa-chalkboard-teacher course-box__teacher-icon"></i>
+                          <a href="#" class="course-box__teacher-link">محمد امین سعیدی راد</a>
+                        </div>
+                        <div class="course-box__rating">
+                             <img src="images/svgs/star_fill.svg" alt="rating" class="course-box__star">
+                             <img src="images/svgs/star_fill.svg" alt="rating" class="course-box__star">
+                             <img src="images/svgs/star_fill.svg" alt="rating" class="course-box__star">
+                             <img src="images/svgs/star_fill.svg" alt="rating" class="course-box__star">
+                             <img src="images/svgs/star_fill.svg" alt="rating" class="course-box__star">
+                        </div>
+                      </div>
+  
+                      <div class="course-box__status">
+                        <div class="course-box__users">
+                          <i class="fas fa-users course-box__users-icon"></i>
+                          <span class="course-box__users-text">${
+                            course.registers
+                          }</span>
+                        </div>
+                        <span class="course-box__price">${
+                          course.price === 0
+                            ? "رایگان"
+                            : course.price.toLocaleString()
+                        }</span>
+                      </div>
+                    </div>
+  
+                    <div class="course-box__footer">
+                      <a href="#" class="course-box__footer-link">
+                        مشاهده اطلاعات
+                        <i class="fas fa-arrow-left course-box__footer-icon"></i>
+                      </a>
+                    </div>
+  
+                  </div>
+                </div>
+        
+        `)
+      
+    })
+  }else{
+    coursesContainer.insertAdjacentHTML("beforeend" , `
+      <div class="alert alert-danger">هیچ دوره ای برای این سرچ وجود ندارد</div>
+      `)
+  }
+
+  if(result.allResultArticles.length){
+    result.allResultArticles.forEach(article => {
+      articlesWrapper.insertAdjacentHTML("beforeend" , `
+  
+         <div class="col-4">
+      <div class="article-card">
+        <div class="article-card__header">
+          <a href="#" class="article-card__link-img">
+            <img src=http://localhost:4000/courses/covers/${article.cover} class="article-card__img" alt="Article Cover" />
+          </a>
+        </div>
+        <div class="article-card__content">
+          <a href="#" class="article-card__link">
+            ${article.title}
+          </a>
+          <p class="article-card__text">
+          ${article.description}
+          </p>
+          <a href="#" class="article-card__btn">بیشتر بخوانید</a>
+        </div>
+      </div>
+    </div>
+        
+        `)
+    })
+  }else{
+    articlesWrapper.insertAdjacentHTML("beforeend" , `
+      <div class="alert alert-danger">هیچ مقاله ای برای این سرچ وجود ندارد</div>
+      `)
+  }
+
+
+  
+}
+
+const sendComment = async () => {
+
+  const commentScore = document.querySelector("#comment-score")
+  const massageElem = document.querySelector(".comments__score-input-respond")
+  let score = 5
+  let courseShortName = getUrlParam("name")
+
+  commentScore.addEventListener("change" , event => {
+    score = event.target.value
+
+  })
+
+  const newCommentObj = {
+    body: massageElem.value.trim(),
+    courseShortName,
+    score
+  }
+
+  const res = await fetch("http://localhost:4000/v1/comments",{
+    method: "POST",
+    headers: {
+      "Authorization" : `Bearer ${getToken()}`,
+      "Content-type" : "application/json"
+    },
+    body: JSON.stringify(newCommentObj)
+  })
+
+  console.log(res);
+
+  
+  
+
+  
+    
+  
+}
+
+
+const showAllCoursesInCoursesPage = async () => {
+
+  const res = await fetch("http://localhost:4000/v1/courses")
+  const courses = await res.json()
+  const coursesWrapper = document.querySelector("#category-courses-wrapper")
+
+  courses.forEach(course => {
+
+    coursesWrapper.insertAdjacentHTML("beforeend" , `
+
+       <div class="col-4">
+                <div class="course-box">
+                  <a href="course.html?name=${course.shortName}">
+                    <img src=http://localhost:4000/courses/covers/${
+                      course.cover
+                    } alt="Course img" class="course-box__img" />
+                  </a>
+                  <div class="course-box__main">
+                    <a href="course.html?name=${
+                      course.shortName
+                    }" class="course-box__title">${course.name}</a>
+
+                    <div class="course-box__rating-teacher">
+                      <div class="course-box__teacher">
+                        <i class="fas fa-chalkboard-teacher course-box__teacher-icon"></i>
+                        <a href="#" class="course-box__teacher-link">${
+                          course.creator
+                        }</a>
+                      </div>
+                      <div class="course-box__rating">
+                      ${Array(5 - course.courseAverageScore)
+                        .fill(0)
+                        .map(
+                          (score) =>
+                            '<img src="images/svgs/star.svg" alt="rating" class="course-box__star">'
+                        )
+                        .join("")}
+                      ${Array(course.courseAverageScore)
+                        .fill(0)
+                        .map(
+                          (score) =>
+                            '<img src="images/svgs/star_fill.svg" alt="rating" class="course-box__star">'
+                        )
+                        .join("")}
+                      </div>
+                    </div>
+
+                    <div class="course-box__status">
+                      <div class="course-box__users">
+                        <i class="fas fa-users course-box__users-icon"></i>
+                        <span class="course-box__users-text">${
+                          course.registers
+                        }</span>
+                      </div>
+                      <span class="course-box__price">${
+                        course.price === 0
+                          ? "رایگان"
+                          : course.price.toLocaleString()
+                      }</span>
+                    </div>
+                  </div>
+
+                  <div class="course-box__footer">
+                    <a href="#" class="course-box__footer-link">
+                      مشاهده اطلاعات
+                      <i class="fas fa-arrow-left course-box__footer-icon"></i>
+                    </a>
+                  </div>
+
+                </div>
+              </div>
+      
+      
+      `)
+    
+  })
+  
+  return courses
+  
+
+  
 }
 
 export {
@@ -801,5 +1108,9 @@ export {
   getAndShowRelatedCourses,
   getSessionDetails,
   submitContactUsMsg,
-  createNewNewsLetter
+  createNewNewsLetter,
+  globalSearch,
+  sendComment,
+  showAllCoursesInCoursesPage,
+  
 };

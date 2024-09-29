@@ -246,7 +246,9 @@
 .article-card:hover {
   transform: translateY(-0.6rem);
 }
-
+.article-card__header{
+overflow: hidden;
+}
 .article-card__img {
   border-radius: 1rem 1rem 0 0;
 }
@@ -277,6 +279,10 @@
 .article-card__btn:hover {
   color: var(--white-color);
   background-color: var(--primary-color);
+}
+
+.article-wrapper{
+  overflow: hidden;
 }
 
 /* Finish Articles Styles */

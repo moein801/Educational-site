@@ -11,6 +11,8 @@ const landingTitle = $.querySelector(".landing__title");
 const landingCoursesCount = $.querySelector("#courses-count");
 const landingMinutesCount = $.querySelector("#minutes-counter");
 const landingUsersCount = $.querySelector("#users-counter");
+const searchInput = document.querySelector("#search-input")
+const searchBtn = document.querySelector("#search-btn")
 
 window.addEventListener("load", () => {
   let landingText = "ما به هر قیمتی دوره آموزشی تولید نمی کنیم !";
@@ -28,6 +30,14 @@ window.addEventListener("load", () => {
   getAndShowNavbarMenus().then((data) => {
     console.log(data);
   });
+
+  searchBtn.addEventListener("click" , (event) => {
+    event.preventDefault()
+    const searchValue = searchInput.value.trim()
+    location.href = `search.html?value=${searchValue}`
+    
+  })
+  
 });
 
 function typeWriter(text, index) {
