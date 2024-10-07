@@ -37,60 +37,42 @@ const searchInArray = (array, searchProperty, searchValue) => {
   return outputArray;
 };
 
+const addParamToUrl = (param, value) => {
+  console.log(param, value);
+  let url = new URL(location.href)
+  let searchParams = url.searchParams
 
-const addParamToURL = (param, value) => {
-
-  console.log(param , value);
-  const url = new URL(location.href)
-  console.log(url);
-  const searchParams = url.searchParams
-  console.log(searchParams);
-  searchParams.set(param,value)
-  console.log(searchParams);
+  searchParams.set(param, value)
   url.search = searchParams.toString()
-  console.log(url);
-  
   location.href = url.toString()
-  
-  
-  
-  
-  
-  
 }
 
-const paginate = (array,itemPerPage,paginateWrapper,currentPage) => {
-  paginateWrapper.innerHTML = ""
-let pageCount = Math.ceil(array.length / itemPerPage)
-let endIndex = itemPerPage * currentPage
-let startIndex = endIndex - itemPerPage
-let paginatedItems = array.slice(startIndex , endIndex)
+const paginateItems = (array, itemsPerPage, paginateParentElem, currentPage) => {
+  paginateParentElem.innerHTML = ''
+  let endIndex = itemsPerPage * currentPage
+  let startIndex = endIndex - itemsPerPage
+  let paginatedItems = array.slice(startIndex, endIndex)
+  let paginatedCount = Math.ceil(array.length / itemsPerPage)
 
-
-
-for(let i=1;i < pageCount + 1 ; i++){
-
-  paginateWrapper.insertAdjacentHTML("beforeend" , `
+  for(let i = 1 ; i < paginatedCount + 1 ; i++) {
+    paginateParentElem.insertAdjacentHTML('beforeend', `
         <li class="courses__pagination-item">
-        ${i === Number(currentPage) ? `
-
-          <a onclick="addParamToURL('page',${i})" class="courses__pagination-link courses__pagination-link--active">
-          
+        ${
+          i === Number(currentPage) ? `
+            <a onclick="addParamToUrl('page', ${i})" class="courses__pagination-link courses__pagination-link--active">
+              ${i}
+            </a>
           ` : `
-          <a onclick="addParamToURL('page',${i})" class="courses__pagination-link">
-
-          `}
-                ${i}
-              </a>
-            </li>
-    
+            <a onclick="addParamToUrl('page', ${i})" class="courses__pagination-link">
+              ${i}
+            </a>
+          `
+        }
+         
+        </li>
     `)
-  
-}
-
-return paginatedItems
-  
-
+  }
+  return paginatedItems
 }
 
 export {
@@ -101,6 +83,6 @@ export {
   isLogin,
   getUrlParam,
   searchInArray,
-  paginate,
-  addParamToURL,
+  paginateItems,
+  addParamToUrl
 };

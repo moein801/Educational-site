@@ -15,6 +15,7 @@ exports.create = async (req, res) => {
     status,
     discount,
   } = req.body;
+console.log(req.body.status);
 
   const course = await courseModel.create({
     name,

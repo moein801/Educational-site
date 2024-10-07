@@ -4,6 +4,7 @@ import {
   getAndShowPresellCourses,
   getAndShowArticles,
   getAndShowNavbarMenus,
+  globalSearch,
 } from "./funcs/shared.js";
 
 const $ = document;
@@ -11,8 +12,8 @@ const landingTitle = $.querySelector(".landing__title");
 const landingCoursesCount = $.querySelector("#courses-count");
 const landingMinutesCount = $.querySelector("#minutes-counter");
 const landingUsersCount = $.querySelector("#users-counter");
-const searchInput = document.querySelector("#search-input")
-const searchBtn = document.querySelector("#search-btn")
+const globalSearchBtn = $.querySelector("#search-btn");
+const globalSearchInput = $.querySelector("#search-input");
 
 window.addEventListener("load", () => {
   let landingText = "ما به هر قیمتی دوره آموزشی تولید نمی کنیم !";
@@ -31,13 +32,12 @@ window.addEventListener("load", () => {
     console.log(data);
   });
 
-  searchBtn.addEventListener("click" , (event) => {
+  // Handling global search
+  globalSearchBtn.addEventListener("click", event => {
     event.preventDefault()
-    const searchValue = searchInput.value.trim()
-    location.href = `search.html?value=${searchValue}`
-    
-  })
-  
+    console.log('Click');
+    location.href = `search.html?value=${globalSearchInput.value.trim()}`;
+  });
 });
 
 function typeWriter(text, index) {

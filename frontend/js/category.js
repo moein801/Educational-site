@@ -4,9 +4,9 @@ import {
   coursesSorting,
 } from "./funcs/shared.js";
 
-import { searchInArray,paginate, getUrlParam,addParamToURL } from "./funcs/utils.js";
+import { searchInArray, paginateItems, getUrlParam, addParamToUrl } from "./funcs/utils.js";
 
-window.addParamToURL = addParamToURL
+window.addParamToUrl = addParamToUrl
 
 window.addEventListener("load", () => {
   getAndShowCategoryCourses().then((responseCourses) => {
@@ -128,16 +128,23 @@ window.addEventListener("load", () => {
       }
     });
 
-    // pagination Courses
-    const paginationListElem = document.querySelector(".courses__pagination-list")
-    const currentPage = getUrlParam("page")
-    const shownCourses = paginate(courses,3,paginationListElem,currentPage)
+    // Handle Pagination
+    const coursesPaginationWrapper = document.querySelector(
+      ".courses__pagination-list"
+    );
+    const currentPage = getUrlParam("page");
+    
+    const shownCourses = paginateItems(
+      [...responseCourses],
+      3,
+      coursesPaginationWrapper,
+      currentPage
+    );
+
     insertCourseBoxHtmlTemplate(
-      shownCourses,
+      [...shownCourses],
       coursesShowType,
       categoryCoursesWrapper
     );
-    
   });
 });
-  

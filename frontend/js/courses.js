@@ -1,28 +1,22 @@
-import { showAllCoursesInCoursesPage,insertCourseBoxHtmlTemplate } from "./funcs/shared.js";
-import { paginate,getUrlParam,addParamToURL } from "./funcs/utils.js";
+import { getAllCourses, insertCourseBoxHtmlTemplate } from "./funcs/shared.js";
+import { paginateItems, getUrlParam, addParamToUrl } from "./funcs/utils.js";
 
-window.addParamToURL = addParamToURL
+window.addParamToUrl = addParamToUrl
 
+window.addEventListener("load", () => {
+  getAllCourses().then((courses) => {
+    const coursesPagintionWrapperElem =
+      document.querySelector("#courses-pagintion");
+    const coursesWrapperElem = document.querySelector("#courses-wrapper");
 
-window.addEventListener("load" , () => {
+    const currentPage = getUrlParam("page");
 
-    
-
-    showAllCoursesInCoursesPage().then((courses) => {
-        console.log(courses);
-        const categoryCoursesWrapper = document.querySelector(
-            "#category-courses-wrapper"
-          );
-        const paginationListElem = document.querySelector(".courses__pagination-list")
-        const currentPage = getUrlParam("page")
-        const shownCourses = paginate([...courses],3,paginationListElem,currentPage)
-        insertCourseBoxHtmlTemplate(
-          [...shownCourses],
-          "row",
-          categoryCoursesWrapper
-        );
-        
-    })
-    
-    
-})
+    let shownCourses = paginateItems(
+      [...courses],
+      3,
+      coursesPagintionWrapperElem,
+      currentPage
+    );
+    insertCourseBoxHtmlTemplate([...shownCourses], "row", coursesWrapperElem);
+  });
+});

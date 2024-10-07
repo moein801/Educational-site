@@ -451,27 +451,7 @@
                     <span class="comments__header-title">نظرات</span>
                 </div>
                 <div class="comments__content">
-                  <!-- data loaded from js -->
-        
-                </div>
-                <div class="comments__pagantion">
-                    <ul class="comments__pagantion-list">
-                        <li class="comments__pagantion-item">
-                            <a href="#" class="comments__pagantion-link">
-                                <i class="fas fa-long-arrow-alt-right comments__pagantion-icon"></i>
-                            </a>
-                        </li>
-                        <li class="comments__pagantion-item">
-                            <a href="#" class="comments__pagantion-link">1</a>
-                        </li>
-                        <li class="comments__pagantion-item">
-                            <a href="#" class="comments__pagantion-link">2</a>
-                        </li>
-                        <li class="comments__pagantion-item">
-                            <a href="#"
-                                class="comments__pagantion-link comments__pagantion-link--active">3</a>
-                        </li>
-                    </ul>
+                    <!-- Comments Loaded From JS -->
                 </div>
                 <div class="comments__rules">
                     <span class="comments__rules-title">قوانین ثبت دیدگاه</span>
@@ -496,14 +476,16 @@
                 <div class="comments__respond">
                     <div class="comments__score">
                         <span class="comments__score-title">امتیاز شما</span>
-                      <select  id="comment-score">
-                        <option value="5">امتیاز خود را ثبت کنید:)</option>
-                        <option value="5">بسیار عالی</option>
-                        <option value="4">عالی</option>
-                        <option value="3">خوب</option>
-                        <option value="2">متوسط</option>
-                        <option value="1">بد</option>
-                      </select>
+                        <div class="col-12">
+                          <select id="comment-score">
+                            <option value="5">به دوره امتیاز دهید :)</option>
+                            <option value="5">عالی</option>
+                            <option value="4">خیلی خوب</option>
+                            <option value="3">خوب</option>
+                            <option value="2">قابل قبول</option>
+                            <option value="1">ضعیف</option>
+                          </select>
+                        </div>
                     </div>
                     <div class="comments__respond-content">
                         <div class="comments__respond-title">دیدگاه شما *</div>
@@ -666,8 +648,8 @@
                               <span class="footer-widgets__text text-center d-block">جهت اطلاع از آخرین اخبار و تخفیف
                                   های سایت مشترک شوید!</span>
                                   <form action="#" class="footer-widgets__form">
-                                      <input type="text" class="footer-widgets__input" placeholder="ایمیل خود را وارد کنید.">
-                                      <button type="submit" class="footer-widgets__btn">عضویت</button>
+                                      <input type="text" class="footer-widgets__input" id="news-letter-input" placeholder="ایمیل خود را وارد کنید.">
+                                      <button type="submit" class="footer-widgets__btn" id="news-letter-submit-btn">عضویت</button>
                                   </form>
                           </div>
                       </div>
@@ -685,6 +667,7 @@
     
     <script src="vendor/FontAwesome5/all.min.js"></script>
     <script src="vendor/Bootstrap/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     <script src="js/shared.js" type="module"></script>
     <script src="js/course.js" type="module"></script>
 </body>

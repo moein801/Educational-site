@@ -1,11 +1,7 @@
-import {globalSearch} from "./funcs/shared.js"
+import { globalSearch } from "./funcs/shared.js";
 
-
-window.addEventListener("load" , () => {
-    console.log("h");
-    
-    
-    globalSearch()
-    
+window.addEventListener('load', () => {
+    globalSearch().then(data => {
+        console.log(data);
+    })
 })
-

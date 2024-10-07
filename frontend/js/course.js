@@ -1,18 +1,17 @@
-import { getCourseDetails, getAndShowRelatedCourses ,sendComment  } from "./funcs/shared.js";
+import {
+  getCourseDetails,
+  getAndShowRelatedCourses,
+  submitComment,
+} from "./funcs/shared.js";
 
+window.addEventListener("load", () => {
+  const submitCommentBtn = document.querySelector(".comments__respond-btn");
 
+  getCourseDetails();
+  getAndShowRelatedCourses();
 
-window.addEventListener('load', () => {
-
-    const commentSubmitBtn = document.querySelector(".comments__respond-btn")
-    
-    
-    getCourseDetails()
-    getAndShowRelatedCourses().then(data => {
-        console.log(data);
-    })
-
-    commentSubmitBtn.addEventListener("click" , sendComment)
-    
-
-})
+  submitCommentBtn.addEventListener("click", () => {
+    console.log('Send Comment');
+    submitComment()
+  });
+});
